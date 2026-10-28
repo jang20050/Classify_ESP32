@@ -1,0 +1,15 @@
+# secrets
+.env
+firmware/**/secrets.h
+firmware/**/homewifi.h
+firmware/**/wifi.md
+
+# collected images & generated split (regenerate with the dashboard / split_dataset.py)
+data/
+dataset/
+
+# third-party reference doc
+xiao.md
+
+__pycache__/
+*.pyc

@@ -1,0 +1,123 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>ESP32 Cam Collector</title>
+<link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+<header>
+  <h1>ESP32-S3 Sense <span>데이터 수집</span></h1>
+  <div class="conn">
+    <span id="status" class="pill off">연결 확인 중…</span>
+    <input id="host" placeholder="ESP32 IP (예: 192.168.0.23)">
+    <button id="saveHost" class="ghost">연결</button>
+  </div>
+</header>
+
+<main>
+  <!-- left: live view + capture -->
+  <section class="panel live">
+    <div class="viewer">
+      <img id="stream" alt="">
+      <div id="noStream" class="placeholder">스트림 없음 — ESP32 IP를 확인하세요</div>
+      <div id="flash" class="flash"></div>
+      <div id="liveLabel" class="badge"></div>
+    </div>
+
+    <div class="block">
+      <div class="row between">
+        <h2>클래스</h2>
+        <form id="newClassForm" class="row">
+          <input id="newClass" placeholder="새 클래스 (영문/숫자/_-)" maxlength="40">
+          <button class="ghost">추가</button>
+        </form>
+      </div>
+      <div id="classChips" class="chips"></div>
+      <p class="hint">숫자키 <kbd>1</kbd>–<kbd>9</kbd>로 클래스 선택</p>
+    </div>
+
+    <div class="block">
+      <div class="row">
+        <button id="captureBtn" class="primary big">촬영 <kbd>Space</kbd></button>
+        <button id="undoBtn" class="ghost big" title="마지막 촬영 삭제">되돌리기 <kbd>Z</kbd></button>
+      </div>
+      <div class="row burst">
+        <label>연속 <input id="burstCount" type="number" min="1" max="500" value="20"> 장</label>
+        <label>간격 <input id="burstInterval" type="number" min="0" max="10000" step="50" value="300"> ms</label>
+        <button id="burstBtn" class="accent">연속 촬영 <kbd>B</kbd></button>
+      </div>
+      <div id="burstProgress" class="progress hidden"><div></div><span></span></div>
+    </div>
+
+    <details class="block">
+      <summary>카메라 설정</summary>
+      <div class="settings">
+        <label>해상도
+          <select data-var="framesize">
+            <option value="0">96x96</option>
+            <option value="5">240x240</option>
+            <option value="6">QVGA 320x240</option>
+            <option value="7">320x320</option>
+            <option value="9">HVGA 480x320</option>
+            <option value="10">VGA 640x480</option>
+            <option value="11">SVGA 800x600</option>
+            <option value="12">XGA 1024x768</option>
+            <option value="13">HD 1280x720</option>
+            <option value="15">UXGA 1600x1200</option>
+          </select>
+        </label>
+        <label>JPEG 품질 (낮을수록 고화질) <input type="range" data-var="quality" min="4" max="63"></label>
+        <label>밝기 <input type="range" data-var="brightness" min="-2" max="2"></label>
+        <label>대비 <input type="range" data-var="contrast" min="-2" max="2"></label>
+        <label>채도 <input type="range" data-var="saturation" min="-2" max="2"></label>
+        <div class="toggles">
+          <label><input type="checkbox" data-var="vflip"> 상하 반전</label>
+          <label><input type="checkbox" data-var="hmirror"> 좌우 반전</label>
+          <label><input type="checkbox" data-var="awb"> 자동 화이트밸런스</label>
+          <label><input type="checkbox" data-var="aec"> 자동 노출</label>
+          <label><input type="checkbox" data-var="agc"> 자동 게인</label>
+        </div>
+      </div>
+    </details>
+  </section>
+
+  <!-- right: gallery -->
+  <section class="panel gallery">
+    <div class="toolbar">
+      <h2 id="galleryTitle">이미지</h2>
+      <div class="row wrap">
+        <button id="selectAllBtn" class="ghost">전체 선택</button>
+        <button id="deleteSelBtn" class="danger" disabled>선택 삭제 <span id="selCount"></span></button>
+        <a id="dlClassBtn" class="btn ghost">클래스 ZIP</a>
+        <a href="/api/download" class="btn ghost">전체 ZIP</a>
+        <span class="sep"></span>
+        <select id="eiCategory" title="Edge Impulse 업로드 카테고리">
+          <option value="split">자동 분할 (80/20)</option>
+          <option value="training">training</option>
+          <option value="testing">testing</option>
+        </select>
+        <button id="eiUploadBtn" class="accent">Edge Impulse 업로드</button>
+        <button id="deleteClassBtn" class="danger ghost">클래스 삭제</button>
+      </div>
+    </div>
+    <div id="stats" class="stats"></div>
+    <div id="grid" class="grid"></div>
+    <p id="emptyMsg" class="placeholder hidden">아직 이미지가 없습니다. 촬영해 보세요.</p>
+  </section>
+</main>
+
+<div id="lightbox" class="lightbox hidden">
+  <img id="lbImg" alt="">
+  <div class="lb-bar">
+    <span id="lbName"></span>
+    <span class="hint"><kbd>←</kbd><kbd>→</kbd> 이동 · <kbd>Del</kbd> 삭제 · <kbd>Esc</kbd> 닫기</span>
+    <button id="lbDelete" class="danger">삭제</button>
+  </div>
+</div>
+
+<div id="toast" class="toast"></div>
+<script src="/static/app.js"></script>
+</body>
+</html>
